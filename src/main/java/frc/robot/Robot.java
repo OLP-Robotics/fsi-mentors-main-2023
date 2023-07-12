@@ -4,8 +4,9 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -18,11 +19,13 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
  * directory.
  */
 public class Robot extends TimedRobot {
-  private final WPI_TalonFX m_leftDrive = new WPI_TalonFX(1);
-  private final WPI_TalonFX m_rightDrive = new WPI_TalonFX(2);
+  private final WPI_TalonSRX m_leftDrive = new WPI_TalonSRX(1);
+  private final WPI_TalonSRX m_rightDrive = new WPI_TalonSRX(2);
   private final DifferentialDrive m_robotDrive = new DifferentialDrive(m_leftDrive, m_rightDrive);
   private final XboxController m_controller = new XboxController(0);
   private final Timer m_timer = new Timer();
+  private final Encoder m_leftEncoder = new Encoder(0, 1);
+  private final Encoder m_rightEncoder = new Encoder(2, 3);
 
   /**
    * This function is run when the robot is first started up and should be used for any
