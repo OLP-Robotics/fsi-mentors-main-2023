@@ -13,8 +13,6 @@ import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -33,7 +31,7 @@ public class Robot extends TimedRobot {
   private final Encoder m_leftEncoder = new Encoder(0, 1);
   private final Encoder m_rightEncoder = new Encoder(2, 3);
   private final DigitalOutput m_ultrasonicEnable = new DigitalOutput(9);
-  private final AnalogPotentiometer m_ultrasonic1 = new AnalogPotentiometer(0);
+  private final AnalogPotentiometer m_ultrasonic1 = new AnalogPotentiometer(0, 512, 0);
 
   /**
    * This function is run when the robot is first started up and should be used for any
