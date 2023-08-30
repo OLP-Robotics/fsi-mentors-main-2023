@@ -2,6 +2,12 @@ import turtleClasses.World;
 import turtleClasses.Turtle;
 import java.awt.Color;
 
+//Turtle Library
+//    https://cseweb.ucsd.edu/~ricko/CSE11/turtleClasses.jar
+
+//Turtle Documentation
+//    https://cseweb.ucsd.edu/~ricko/CSE11/turtleClassesDocs
+
 public class MyTurtle {
     public static final int WORLD_WIDTH = 800;
     public static final int WORLD_HEIGHT = 400;
