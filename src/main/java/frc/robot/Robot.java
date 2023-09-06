@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.util.ArrayList;
-
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.cameraserver.CameraServer;
@@ -13,6 +11,7 @@ import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -32,6 +31,10 @@ public class Robot extends TimedRobot {
   private final Encoder m_rightEncoder = new Encoder(2, 3);
   private final DigitalOutput m_ultrasonicEnable = new DigitalOutput(9);
   private final AnalogPotentiometer m_ultrasonic1 = new AnalogPotentiometer(0, 512, 0);
+  private final AnalogPotentiometer m_ultrasonic2 = new AnalogPotentiometer(1, 512, 0);
+  private final AnalogPotentiometer m_ultrasonic3 = new AnalogPotentiometer(2, 512, 0);
+  private final AnalogPotentiometer m_ultrasonic4 = new AnalogPotentiometer(3, 512, 0);
+  private final Timer m_timer = new Timer();
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -39,7 +42,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    m_ultrasonicEnable.set(false);
+    m_ultrasonicEnable.set(true);
     CameraServer.startAutomaticCapture();
   }
 
@@ -59,14 +62,27 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     m_robotDrive.tankDrive(-0.6 * m_controller.getLeftY(), -0.6 * m_controller.getRightY());
-    SmartDashboard.putNumber("Ultrasonic", m_ultrasonic1.get());
+    SmartDashboard.putNumber("Ultrasonic 1", m_ultrasonic1.get());
+    SmartDashboard.putNumber("Ultrasonic 2", m_ultrasonic2.get());
+    SmartDashboard.putNumber("Ultrasonic 3", m_ultrasonic3.get());
+    SmartDashboard.putNumber("Ultrasonic 4", m_ultrasonic4.get());
   }
 
   /** This function is called once each time the robot enters test mode. */
   @Override
-  public void testInit() {}
+  public void testInit() {
+    m_timer.restart();
+  }
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+     // Drive for 2 seconds
+    if (m_timer.get() < 2.0) {
+      // Drive forwards 30% speed, make sure to turn input squaring off
+      m_robotDrive.arcadeDrive(0.3, 0.0, false);
+    } else {
+      m_robotDrive.stopMotor(); // stop robot
+    }
+  }
 }
