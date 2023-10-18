@@ -5,11 +5,14 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -34,6 +37,11 @@ public class Robot extends TimedRobot {
   private final AnalogPotentiometer m_ultrasonic2 = new AnalogPotentiometer(1, 512, 0);
   private final AnalogPotentiometer m_ultrasonic3 = new AnalogPotentiometer(2, 512, 0);
   private final AnalogPotentiometer m_ultrasonic4 = new AnalogPotentiometer(3, 512, 0);
+  private final MedianFilter m_ultrasonicFilter1 = new MedianFilter(5);
+  private final MedianFilter m_ultrasonicFilter2 = new MedianFilter(5);
+  private final MedianFilter m_ultrasonicFilter3 = new MedianFilter(5);
+  private final MedianFilter m_ultrasonicFilter4 = new MedianFilter(5);
+  private final AHRS m_nav = new AHRS(Port.kUSB1);
   private final Timer m_timer = new Timer();
 
   /**
@@ -44,6 +52,18 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     m_ultrasonicEnable.set(true);
     CameraServer.startAutomaticCapture();
+
+    SmartDashboard.putString("Init", "true");
+
+    m_nav.calibrate();
+    while (m_nav.isCalibrating()) {
+      try {
+        Thread.sleep(500, 0);
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
   }
 
   /** This function is run once each time the robot enters autonomous mode. */
@@ -62,10 +82,14 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     m_robotDrive.tankDrive(-0.6 * m_controller.getLeftY(), -0.6 * m_controller.getRightY());
-    SmartDashboard.putNumber("Ultrasonic 1", m_ultrasonic1.get());
-    SmartDashboard.putNumber("Ultrasonic 2", m_ultrasonic2.get());
-    SmartDashboard.putNumber("Ultrasonic 3", m_ultrasonic3.get());
-    SmartDashboard.putNumber("Ultrasonic 4", m_ultrasonic4.get());
+    
+    SmartDashboard.putNumber("Ultrasonic 1", m_ultrasonicFilter1.calculate(m_ultrasonic1.get()));
+    SmartDashboard.putNumber("Ultrasonic 2", m_ultrasonicFilter2.calculate(m_ultrasonic2.get()));
+    SmartDashboard.putNumber("Ultrasonic 3", m_ultrasonicFilter3.calculate(m_ultrasonic3.get()));
+    SmartDashboard.putNumber("Ultrasonic 4", m_ultrasonicFilter4.calculate(m_ultrasonic4.get()));
+    SmartDashboard.putNumber("Pitch", m_nav.getPitch());
+    SmartDashboard.putNumber("Roll", m_nav.getRoll());
+    SmartDashboard.putNumber("Yaw", m_nav.getYaw());
   }
 
   /** This function is called once each time the robot enters test mode. */
@@ -80,7 +104,7 @@ public class Robot extends TimedRobot {
      // Drive for 2 seconds
     if (m_timer.get() < 2.0) {
       // Drive forwards 30% speed, make sure to turn input squaring off
-      m_robotDrive.arcadeDrive(0.3, 0.0, false);
+      m_robotDrive.arcadeDrive(0.6, 0.0, false);
     } else {
       m_robotDrive.stopMotor(); // stop robot
     }
