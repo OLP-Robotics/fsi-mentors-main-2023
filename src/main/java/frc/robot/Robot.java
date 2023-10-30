@@ -4,11 +4,18 @@
 
 package frc.robot;
 
+import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
+
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.apriltag.AprilTagDetection;
+import edu.wpi.first.apriltag.AprilTagDetector;
+import edu.wpi.first.apriltag.AprilTagPoseEstimator;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.filter.MedianFilter;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.DigitalOutput;
@@ -100,6 +107,28 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Accelerometer X", m_accelerometer.getX());
     SmartDashboard.putNumber("Accelerometer Y", m_accelerometer.getY());
     SmartDashboard.putNumber("Accelerometer Z", m_accelerometer.getZ());
+
+    if (m_controller.getAButton()) {
+      // set up AprilTag detector
+      AprilTagDetector detector = new AprilTagDetector();
+      AprilTagDetector.Config config = new AprilTagDetector.Config();
+      // set config parameters, e.g. config.blah = 5;
+      detector.setConfig(config);
+      detector.addFamily("tag16h5");
+
+      Mat mat = new Mat();
+      Mat graymat = new Mat();
+      CameraServer.getVideo().grabFrame(mat);
+      // convert image to grayscale
+      Imgproc.cvtColor(mat, graymat, Imgproc.COLOR_BGR2GRAY);
+
+      // run detection
+      for (AprilTagDetection detection : detector.detect(graymat)) {
+        SmartDashboard.putNumber("Tag ID", detection.getId());
+      }
+
+      detector.close();
+    }
   }
 
   /** This function is called once each time the robot enters test mode. */
