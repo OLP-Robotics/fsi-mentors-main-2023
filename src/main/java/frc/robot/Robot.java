@@ -10,6 +10,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
+import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SerialPort.Port;
@@ -17,6 +18,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -28,10 +30,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Robot extends TimedRobot {
   private final WPI_TalonSRX m_leftDrive = new WPI_TalonSRX(1);
   private final WPI_TalonSRX m_rightDrive = new WPI_TalonSRX(2);
-  private final DifferentialDrive m_robotDrive = new DifferentialDrive(m_leftDrive, m_rightDrive);
+  // private final Encoder m_leftEncoder = new Encoder(0, 1);
+  // private final Encoder m_rightEncoder = new Encoder(2, 3);
   private final XboxController m_controller = new XboxController(0);
-  private final Encoder m_leftEncoder = new Encoder(0, 1);
-  private final Encoder m_rightEncoder = new Encoder(2, 3);
+  private final DifferentialDrive m_robotDrive = new DifferentialDrive(m_leftDrive, m_rightDrive);
+
   private final DigitalOutput m_ultrasonicEnable = new DigitalOutput(9);
   private final AnalogPotentiometer m_ultrasonic1 = new AnalogPotentiometer(0, 512, 0);
   private final AnalogPotentiometer m_ultrasonic2 = new AnalogPotentiometer(1, 512, 0);
@@ -41,7 +44,10 @@ public class Robot extends TimedRobot {
   private final MedianFilter m_ultrasonicFilter2 = new MedianFilter(5);
   private final MedianFilter m_ultrasonicFilter3 = new MedianFilter(5);
   private final MedianFilter m_ultrasonicFilter4 = new MedianFilter(5);
-  private final AHRS m_nav = new AHRS(Port.kUSB1);
+
+  // private final AHRS m_nav = new AHRS(Port.kUSB1); // Nav-X
+  private final Accelerometer m_accelerometer = new BuiltInAccelerometer(); // RoboRIO
+
   private final Timer m_timer = new Timer();
 
   /**
@@ -53,17 +59,14 @@ public class Robot extends TimedRobot {
     m_ultrasonicEnable.set(true);
     CameraServer.startAutomaticCapture();
 
-    SmartDashboard.putString("Init", "true");
-
-    m_nav.calibrate();
-    while (m_nav.isCalibrating()) {
-      try {
-        Thread.sleep(500, 0);
-      } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-    }
+    // m_nav.calibrate();
+    // while (m_nav.isCalibrating()) {
+    //   try {
+    //     Thread.sleep(500, 0);
+    //   } catch (InterruptedException e) {
+    //     e.printStackTrace();
+    //   }
+    // }
   }
 
   /** This function is run once each time the robot enters autonomous mode. */
@@ -87,9 +90,16 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Ultrasonic 2", m_ultrasonicFilter2.calculate(m_ultrasonic2.get()));
     SmartDashboard.putNumber("Ultrasonic 3", m_ultrasonicFilter3.calculate(m_ultrasonic3.get()));
     SmartDashboard.putNumber("Ultrasonic 4", m_ultrasonicFilter4.calculate(m_ultrasonic4.get()));
-    SmartDashboard.putNumber("Pitch", m_nav.getPitch());
-    SmartDashboard.putNumber("Roll", m_nav.getRoll());
-    SmartDashboard.putNumber("Yaw", m_nav.getYaw());
+
+    // Nav-X
+    // SmartDashboard.putNumber("Pitch", m_nav.getPitch());
+    // SmartDashboard.putNumber("Roll", m_nav.getRoll());
+    // SmartDashboard.putNumber("Yaw", m_nav.getYaw());
+
+    // RoboRIO Accelerometer
+    SmartDashboard.putNumber("Accelerometer X", m_accelerometer.getX());
+    SmartDashboard.putNumber("Accelerometer Y", m_accelerometer.getY());
+    SmartDashboard.putNumber("Accelerometer Z", m_accelerometer.getZ());
   }
 
   /** This function is called once each time the robot enters test mode. */
